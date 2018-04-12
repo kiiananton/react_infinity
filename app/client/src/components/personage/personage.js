@@ -2,7 +2,7 @@ import React from 'react';
 
 const Personage = (props) => {
     return (
-        <div className='personage' key={props.id} style={{border: '1px solid black'}}>
+        <div className='personage'  style={{border: '1px solid black', padding: '5px'}}>
             <div>
                 Name:{props.name}
             </div>

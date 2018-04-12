@@ -10,11 +10,15 @@ class FormRequest extends Component {
     state = {
         name: '',
         data: [],
-        isRequestProcess: false
-    };
+        isDone: false
+    }
 
     componentWillMount() {
-        this.getPersonageDate();
+        setInterval(() => {
+            if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 50) && !this.state.isDone) {
+                this.getPersonageDate();
+            }
+        }, 500);
     }
 
     updateName = (event) => {
@@ -23,38 +27,32 @@ class FormRequest extends Component {
         })
     };
 
-    onPaginatedSearch = (event) => {
-        if (this.state.isRequestProcess) return;
-        this.setState({isRequestProcess: true });
-        this.getPersonageDate()
-        this.setState({isRequestProcess: false });
-    }
-
     getPersonageDate = () => {
-        let id = 1 + (this.state.data.length === 0 ? 0 : this.state.data[this.state.data.length -1].id)
+        this.setState({isDone: true});
+        let id = 1 + (this.state.data.length === 0 ? 0 : this.state.data[this.state.data.length - 1].id)
+        // axios.get(`${URL}/?query={personage(id:${id}){id,name, weight, height, image,types}}`)
         axios.get(`${URL}/query?last_id=${id}`)
-            .then(response => {
+            .then((response) => {
                 this.setState({
-                    data: [...this.state.data,...response.data]
+                    isDone: response.data.length === 0,
+                    data: [...this.state.data, ...response.data]
                 });
             });
     }
 
     render() {
         let data;
-        const name = this.state.name;
-        console.log(name);
-        if (name.trim() !==''){
-            console.log('test')
-            data = this.state.data.filter( item => item.name.includes(name) )
+        const name = this.state.name.trim();
+        if (name !== '') {
+            data = this.state.data.filter((item) => item.name.includes(name))
         } else {
             data = this.state.data
         }
 
         return (
             <div>
-                <input type="text" id="username-input" onChange={this.updateName} value = {this.state.name}/>
-                <PersonageList data={data} onPaginatedSearch = {this.onPaginatedSearch}/>
+                <input type="text" id="username-input" onChange={this.updateName}/>
+                <PersonageList data={data}/>
             </div>
         )
     };
